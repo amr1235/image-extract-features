@@ -1,11 +1,8 @@
 import cv2 as cv
-import math
 import numpy as np
 import os
 import logging
-log = logging.getLogger("log")
-log.info("test")
-
+from functools import cmp_to_key
 class SIFT:
     def __init__(self, image_path,pre_segma = 0.5) -> None:
         self.float_tolerance = 1e-7
@@ -13,7 +10,7 @@ class SIFT:
         self.pre_segma = pre_segma
 
     def computeKeypointsAndDescriptors(self,sigma=1.6, num_intervals=3, image_border_width=5):
-        image = cv.imread(self.image_path)
+        image = cv.imread(self.image_path,flags = cv.IMREAD_GRAYSCALE)
         image = image.astype('float32')
         # base_image = generateBaseImage(image, sigma, assumed_blur)
         base_image = self.generate_base_image(image, sigma, self.pre_segma)
@@ -40,12 +37,12 @@ class SIFT:
     def generate_base_image(self, image, sigma, pre_segma):
         image = cv.resize(image, (0, 0), fx=2, fy=2,
                           interpolation=cv.INTER_LINEAR)
-        sigma_diff = math.sqrt(
+        sigma_diff = np.sqrt(
             max((sigma ** 2) - ((2 * pre_segma) ** 2), 0.01))
         return cv.GaussianBlur(image, (0, 0), sigmaX=sigma_diff, sigmaY=sigma_diff)
 
     def compute_number_of_octaves(self, image_shape):
-        return int(round(math.log(min(image_shape)) / math.log(2) - 1))
+        return int(np.round(np.log(min(image_shape)) / np.log(2) - 1))
 
     def generate_gaussian_segmas(self, sigma, num_intervals):
         num_images_per_octave = num_intervals + 3
@@ -56,7 +53,7 @@ class SIFT:
         for image_index in range(1, num_images_per_octave):
             sigma_previous = (k ** (image_index - 1)) * sigma
             sigma_total = k * sigma_previous
-            gaussian_segmas[image_index] = math.sqrt(
+            gaussian_segmas[image_index] = np.sqrt(
                 sigma_total ** 2 - sigma_previous ** 2)
 
         return gaussian_segmas
@@ -113,17 +110,17 @@ class SIFT:
         center_pixel_value = second_subimage[1, 1]
         if abs(center_pixel_value) > threshold:
             if center_pixel_value > 0:
-                return all(center_pixel_value >= first_subimage) and \
-                    all(center_pixel_value >= third_subimage) and \
-                    all(center_pixel_value >= second_subimage[0, :]) and \
-                    all(center_pixel_value >= second_subimage[2, :]) and \
+                return np.all(center_pixel_value >= first_subimage) and \
+                    np.all(center_pixel_value >= third_subimage) and \
+                    np.all(center_pixel_value >= second_subimage[0, :]) and \
+                    np.all(center_pixel_value >= second_subimage[2, :]) and \
                     center_pixel_value >= second_subimage[1, 0] and \
                     center_pixel_value >= second_subimage[1, 2]
             elif center_pixel_value < 0:
-                return all(center_pixel_value <= first_subimage) and \
-                    all(center_pixel_value <= third_subimage) and \
-                    all(center_pixel_value <= second_subimage[0, :]) and \
-                    all(center_pixel_value <= second_subimage[2, :]) and \
+                return np.all(center_pixel_value <= first_subimage) and \
+                    np.all(center_pixel_value <= third_subimage) and \
+                    np.all(center_pixel_value <= second_subimage[0, :]) and \
+                    np.all(center_pixel_value <= second_subimage[2, :]) and \
                     center_pixel_value <= second_subimage[1, 0] and \
                     center_pixel_value <= second_subimage[1, 2]
         return False
@@ -144,9 +141,9 @@ class SIFT:
                 np.linalg.lstsq(hessian, gradient, rcond=None)[0]
             if abs(extremum_update[0]) < 0.5 and abs(extremum_update[1]) < 0.5 and abs(extremum_update[2]) < 0.5:
                 break
-            j += int(round(extremum_update[0]))
-            i += int(round(extremum_update[1]))
-            image_index += int(round(extremum_update[2]))
+            j += int(np.round(extremum_update[0]))
+            i += int(np.round(extremum_update[1]))
+            image_index += int(np.round(extremum_update[2]))
             # make sure the new pixel_cube will lie entirely within the image
             if i < image_border_width or i >= image_shape[0] - image_border_width or j < image_border_width or j >= image_shape[1] - image_border_width or image_index < 1 or image_index > num_intervals:
                 extremum_is_outside_image = True
@@ -168,7 +165,7 @@ class SIFT:
                     (j + extremum_update[0]) * (2 ** octave_index), (i + extremum_update[1]) * (2 ** octave_index))
                 keypoint.octave = octave_index + image_index * \
                     (2 ** 8) + \
-                    int(round((extremum_update[2] + 0.5) * 255)) * (2 ** 16)
+                    int(np.round((extremum_update[2] + 0.5) * 255)) * (2 ** 16)
                 keypoint.size = sigma * (2 ** ((image_index + extremum_update[2]) / np.float32(num_intervals))) * (
                     2 ** (octave_index + 1))  # octave_index + 1 because the input image was doubled
                 keypoint.response = abs(functionValueAtUpdatedExtremum)
@@ -217,18 +214,18 @@ class SIFT:
         # compare with keypoint.size computation in localizeExtremumViaQuadraticFit()
         scale = scale_factor * keypoint.size / \
             np.float32(2 ** (octave_index + 1))
-        radius = int(round(radius_factor * scale))
+        radius = int(np.round(radius_factor * scale))
         weight_factor = -0.5 / (scale ** 2)
         raw_histogram = np.zeros(num_bins)
         smooth_histogram = np.zeros(num_bins)
 
         for i in range(-radius, radius + 1):
             region_y = int(
-                round(keypoint.pt[1] / np.float32(2 ** octave_index))) + i
+                np.round(keypoint.pt[1] / np.float32(2 ** octave_index))) + i
             if region_y > 0 and region_y < image_shape[0] - 1:
                 for j in range(-radius, radius + 1):
                     region_x = int(
-                        round(keypoint.pt[0] / np.float32(2 ** octave_index))) + j
+                        np.round(keypoint.pt[0] / np.float32(2 ** octave_index))) + j
                     if region_x > 0 and region_x < image_shape[1] - 1:
                         dx = gaussian_image[region_y, region_x + 1] - \
                             gaussian_image[region_y, region_x - 1]
@@ -239,7 +236,7 @@ class SIFT:
                         # constant in front of exponential can be dropped because we will find peaks later
                         weight = np.exp(weight_factor * (i ** 2 + j ** 2))
                         histogram_index = int(
-                            round(gradient_orientation * num_bins / 360.))
+                            np.round(gradient_orientation * num_bins / 360.))
                         raw_histogram[histogram_index %
                                       num_bins] += weight * gradient_magnitude
 
@@ -248,7 +245,7 @@ class SIFT:
                 n + 1) % num_bins]) + raw_histogram[n - 2] + raw_histogram[(n + 2) % num_bins]) / 16.
         orientation_max = max(smooth_histogram)
         orientation_peaks = np.where(np.logical_and(smooth_histogram > np.roll(
-            smooth_histogram, 1), smooth_histogram > roll(smooth_histogram, -1)))[0]
+            smooth_histogram, 1), smooth_histogram > np.roll(smooth_histogram, -1)))[0]
         for peak_index in orientation_peaks:
             peak_value = smooth_histogram[peak_index]
             if peak_value >= peak_ratio * orientation_max:
@@ -325,11 +322,11 @@ class SIFT:
             octave, layer, scale = self.unpack_octave(keypoint)
             gaussian_image = gaussian_images[octave + 1, layer]
             num_rows, num_cols = gaussian_image.shape
-            point = round(scale * np.array(keypoint.pt)).astype('int')
+            point = np.round(scale * np.array(keypoint.pt)).astype('int')
             bins_per_degree = num_bins / 360.
             angle = 360. - keypoint.angle
-            cos_angle = np.cos(deg2rad(angle))
-            sin_angle = np.sin(deg2rad(angle))
+            cos_angle = np.cos(np.deg2rad(angle))
+            sin_angle = np.sin(np.deg2rad(angle))
             weight_multiplier = -0.5 / ((0.5 * window_width) ** 2)
             row_bin_list = []
             col_bin_list = []
@@ -342,7 +339,7 @@ class SIFT:
             # Descriptor window size (described by half_width) follows OpenCV convention
             hist_width = scale_multiplier * 0.5 * scale * keypoint.size
             # sqrt(2) corresponds to diagonal length of a pixel
-            half_width = int(round(hist_width * np.sqrt(2)
+            half_width = int(np.round(hist_width * np.sqrt(2)
                              * (window_width + 1) * 0.5))
             # ensure half_width lies within image
             half_width = int(
@@ -355,8 +352,8 @@ class SIFT:
                     row_bin = (row_rot / hist_width) + 0.5 * window_width - 0.5
                     col_bin = (col_rot / hist_width) + 0.5 * window_width - 0.5
                     if row_bin > -1 and row_bin < window_width and col_bin > -1 and col_bin < window_width:
-                        window_row = int(round(point[1] + row))
-                        window_col = int(round(point[0] + col))
+                        window_row = int(np.round(point[1] + row))
+                        window_col = int(np.round(point[0] + col))
                         if window_row > 0 and window_row < num_rows - 1 and window_col > 0 and window_col < num_cols - 1:
                             dx = gaussian_image[window_row, window_col + 1] - \
                                 gaussian_image[window_row, window_col - 1]
@@ -424,15 +421,14 @@ class SIFT:
             threshold = np.linalg.norm(
                 descriptor_vector) * descriptor_max_value
             descriptor_vector[descriptor_vector > threshold] = threshold
-            descriptor_vector /= max(norm(descriptor_vector), float_tolerance)
-            # Multiply by 512, round, and saturate between 0 and 255 to convert from float32 to unsigned char (OpenCV convention)
-            descriptor_vector = round(512 * descriptor_vector)
+            descriptor_vector /= max(np.linalg.norm(descriptor_vector), self.float_tolerance)
+            # Multiply by 512, np.round, and saturate between 0 and 255 to convert from float32 to unsigned char (OpenCV convention)
+            descriptor_vector = np.round(512 * descriptor_vector)
             descriptor_vector[descriptor_vector < 0] = 0
             descriptor_vector[descriptor_vector > 255] = 255
             descriptors.append(descriptor_vector)
 
         return np.array(descriptors, dtype='float32')
-
 
 ############################ USAGE #############################
 sift = SIFT("eiffel2.jpg")
