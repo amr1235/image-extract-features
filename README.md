@@ -32,7 +32,7 @@ For given set of images (grayscale and color). we can extract the unique feature
 
 3. Run the application.
 ```sh
-> python 
+> python APP.py
 ```
 
 ## Harris operator
