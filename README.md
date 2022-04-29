@@ -1,4 +1,4 @@
-# image-extract-features
+# Feature extraction 
 For given set of images (grayscale and color). we can extract the unique features in all images using Harris operator and λ-, generate feature descriptors using scale invariant features (SIFT), and matching the image set features using sum of squared differences (SSD) and normalized cross correlations.
 
 ---
@@ -12,6 +12,28 @@ For given set of images (grayscale and color). we can extract the unique feature
 | Abdelrahman Gamal | 1 | 46 |
 | Abdallah Mohamed  | 1 | 49 |
 | Amr Mohamed | 2 | 5 |
+
+# Setup
+1. From the command line create a virtual environment and activate.
+```sh
+# Windows
+> python -m venv .venv
+> .venv\Scripts\activate
+
+# Linux
+> python3 -m venv .venv
+> source .venv/bin/activate
+```
+
+2. Install the dependencies.
+```sh
+> pip install -r requirements.txt
+```
+
+3. Run the application.
+```sh
+> python 
+```
 
 ## Harris operator
 
