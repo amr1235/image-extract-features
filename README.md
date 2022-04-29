@@ -75,7 +75,67 @@ def apply_harris(img, k = 0.05, threshold = 0.01):
 #### Result
 ![img](results/harris.png)
 
+## scale invariant features (SIFT)
+Scale Invariant Feature Transform, is a feature detection algorithm in Computer Vision.
+you can finde SIFT Class at libs/sift.py all the code in the class are built based on the [Lowe's paper](https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf)
 
+### Constructing a Scale Space
+
+![img](images/eq1.png)
+![img](images/eq2.png)
+
+1. get the number of ocatves based on the image shape 
+
+```
+compute_number_of_octaves(base_image.shape) 
+```
+2. for each image in one octave we generate the corresponding
+
+```
+generate_gaussian_segmas(sigma, num_intervals)
+```
+3. applying the Gaussian Blur for each image 
+
+```
+generate_gaussian_images(base_image, num_octaves, gaussian_segmas)
+```
+4. enhance the features using Difference of Gaussians or DoG
+
+```
+generate_DoG_images(gaussian_images)
+```
+### Keypoint Localization
+1. locate the local maxima and minima
+
+```python
+localize_extremum_via_quadratic_fit(self, i, j, image_index, octave_index, num_intervals, dog_images_in_octave, sigma, contrast_threshold, image_border_width, eigenvalue_ratio=10, num_attempts_until_convergence=5) # i , j the index of the pixel
+```
+2. Orientation Assignment
+
+```python
+compute_key_points_with_orientations(
+                                    keypoint, octave_index, gaussian_images[octave_index][localized_image_index])
+# gaussian_images[octave_index][localized_image_index] is the images in the ocatve
+```
+1. Calculate the magnitude and orientation
+
+```
+compute_gradient_at_center_pixel(self, pixel_array)
+``` 
+   2. Create a histogram for magnitude and orientation
+```
+compute_hessian_at_center_pixel(self, pixel_array)
+```
+### generate the Keypoint Descriptors
+
+```
+generate_descriptors(keypoints, gaussian_images)
+```
+all the above steps wrapped buy the following function 
+
+```
+computeKeypointsAndDescriptors(self,sigma=1.6, num_intervals=3, image_border_width=5)
+```
 # Feature matching 
 ## 1) algorothms explanations:
 ### a) SSD:

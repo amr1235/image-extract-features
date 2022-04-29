@@ -1,4 +1,4 @@
-import task3
+import UI
 from PyQt5 import QtWidgets , QtCore, QtGui
 import matplotlib.pyplot as plt
 from libs.harris import apply_harris
@@ -9,7 +9,7 @@ import cv2
 from libs.sift import SIFT
 from PyQt5.QtWidgets import QMessageBox
 
-class MainWindow(QtWidgets.QMainWindow , task3.Ui_MainWindow):
+class MainWindow(QtWidgets.QMainWindow , UI.Ui_MainWindow):
     # resized = QtCore.pyqtSignal()
     def __init__(self):
         super(MainWindow, self).__init__()
