@@ -21,7 +21,7 @@ apply_harris(img, k = 0.05, threshold = 0.01)
 #### Parameters:
 * threshold: is the percentage of max of haris operator, it must be a float number between 0 and 1
 * k: Sensitivity factor to separate corners from edges.
-<br>
+* 
 #### Implementation
 
 we implement a code for using harris operator to extract the features from images.
