@@ -7,6 +7,7 @@ import time
 import sys
 import cv2
 from libs.sift import SIFT
+from PyQt5.QtWidgets import QMessageBox
 
 class MainWindow(QtWidgets.QMainWindow , task3.Ui_MainWindow):
     # resized = QtCore.pyqtSignal()
@@ -47,6 +48,8 @@ class MainWindow(QtWidgets.QMainWindow , task3.Ui_MainWindow):
                 self.radioButton.setEnabled(True)
                 self.radioButton_2.setEnabled(True)
                 self.threshold_3.setEnabled(True)
+            else:
+                self.pop_up()
                 
 
     def harris_match(self):
@@ -106,6 +109,14 @@ class MainWindow(QtWidgets.QMainWindow , task3.Ui_MainWindow):
         defaultImg = plt.imread("images/default-image.jpg")
         for widget in self.widgets:
             self.display(defaultImg,widget)
+    def pop_up(self):
+        msg = QMessageBox()
+        msg.setWindowTitle("Warning")
+        msg.setText('Warning!')
+        msg.setIcon(QMessageBox.Warning)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.setInformativeText('You must select only 2 images!')
+        x = msg.exec_()
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
