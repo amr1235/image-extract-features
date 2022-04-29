@@ -50,6 +50,6 @@ def apply_harris(img, k = 0.05, threshold = 0.01):
     return img_copy
 ```
 
-### Result
+#### Result
 ![img](results/harris.png)
 
