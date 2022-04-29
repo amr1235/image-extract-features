@@ -10,7 +10,7 @@ apply_harris(img, k = 0.05, threshold = 0.01)
 #### Implementation
 
 we implement a code for using harris operator to extract the features from images.
-![img1](images/harris_rule.png)
+![img1](../images/harris_rule.png)
 
 ```
 def apply_harris(img, k = 0.05, threshold = 0.01):
@@ -36,7 +36,7 @@ def apply_harris(img, k = 0.05, threshold = 0.01):
 ```
 
 #### Result
-![img](results/harris.png)
+![img](../results/harris.png)
 
 ## scale invariant features (SIFT)
 Scale Invariant Feature Transform, is a feature detection algorithm in Computer Vision.
@@ -44,8 +44,8 @@ you can finde SIFT Class at libs/sift.py all the code in the class are built bas
 
 ### Constructing a Scale Space
 
-![img](images/eq1.png)
-![img](images/eq2.png)
+![img](../images/eq1.png)
+![img](../images/eq2.png)
 
 1. get the number of ocatves based on the image shape 
 
@@ -108,6 +108,6 @@ computeKeypointsAndDescriptors(self,sigma=1.6, num_intervals=3, image_border_wid
 ## 2) Results for Feature matching
 ### there are 2 params. for the gui in this part, selecting the mode( "NCC","SSD" ), and select the threshold(for SSD: [0,inf[, for NCC: [-1,1] )
 ### for our test case we used threshold 10000 for SSD, and 0.9 for NCC.
-![ NCC Image with 0.9 threshold](results/ncc.png)
+![ NCC Image with 0.9 threshold](../results/ncc.png)
 
-![ SSD Image with 10000 threshold](results/ssd.png)
+![ SSD Image with 10000 threshold](../results/ssd.png)
