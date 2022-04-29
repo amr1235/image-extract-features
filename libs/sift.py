@@ -430,6 +430,7 @@ class SIFT:
 
         return np.array(descriptors, dtype='float32')
 
+
 ############################ USAGE #############################
-sift = SIFT("eiffel2.jpg")
-keypoints,descriptors = sift.computeKeypointsAndDescriptors()
+#sift = SIFT("ramsis.jpg")
+#keypoints,descriptors = sift.computeKeypointsAndDescriptors()
